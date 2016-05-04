@@ -23,7 +23,9 @@
             android:text="Event Title Event Title"
             android:textColor="@color/primary_text"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:transitionName="@string/transition_title"
+            android:typeface="serif" />
 
         <TextView
             android:id="@+id/row_date"

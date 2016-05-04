@@ -10,6 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+
     }
     buildTypes {
         release {
@@ -17,6 +18,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+
 }
 
 dependencies {
@@ -25,15 +28,15 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:recyclerview-v7:23.3.0'
     compile 'com.android.support:cardview-v7:23.3.0'
-
     compile 'com.google.code.gson:gson:2.6.2'
     compile 'com.squareup.retrofit2:retrofit:2.0.2'
     compile 'com.squareup.retrofit2:converter-gson:2.0.2'
-
     compile 'com.jakewharton:butterknife:7.0.1'
     compile 'org.greenrobot:eventbus:3.0.0'
-
     compile 'jp.wasabeef:recyclerview-animators:2.2.0'
-
-
+    compile 'com.android.support:design:23.3.0'
+    //    compile 'org.ocpsoft.prettytime:prettytime-parent:4.0.1.Final'
+    //    compile 'org.ocpsoft.prettytime:prettytime-nlp:4.0.1.Final'
+    //    compile files('libs/prettytime-4.0.1.Final.jar')
+    compile files('libs/prettytime-nlp-4.0.1.Final.jar')
 }

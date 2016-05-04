@@ -11,7 +11,12 @@ buildscript {
         // in the individual module build.gradle files
     }
 }
-
+plugins {
+    id "com.nimbledroid.profiler" version "1.0.8"
+}
+nimbledroid {
+    apiKey "29c5288daeedf21835a321f277b27b51"
+}
 allprojects {
     repositories {
         jcenter()

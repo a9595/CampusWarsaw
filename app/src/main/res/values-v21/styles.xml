@@ -1,0 +1,24 @@
+<resources>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+
+        <!-- enable window content transitions -->
+        <item name="android:windowActivityTransitions">true</item>
+
+        <!-- specify enter and exit transitions
+        <item name="android:windowEnterTransition">@transition/transition_slide</item>
+        <item name="android:windowExitTransition">@transition/transition_fade</item>
+-->
+        <!-- specify shared element transitions -->
+        <item name="android:windowSharedElementEnterTransition">
+            @transition/transition_change_bounds
+        </item>
+        <item name="android:windowSharedElementExitTransition">
+            @transition/transition_change_bounds
+        </item>
+    </style>
+</resources>
