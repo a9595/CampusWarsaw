@@ -6,8 +6,10 @@ import android.animation.TimeInterpolator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.annotation.ColorRes;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -31,6 +33,7 @@ import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -50,6 +53,7 @@ public class DetailsActivity extends AppCompatActivity {
     public RelativeLayout mUiRelativeLayout;
 
     private Event mEvent;
+    private List<Date> mParsedDatedList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +73,10 @@ public class DetailsActivity extends AppCompatActivity {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                    String url = mEvent.link;
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
                 }
             });
         }
@@ -90,36 +96,32 @@ public class DetailsActivity extends AppCompatActivity {
             return;
         }
 
-        List<Date> parsedDates = DateTimeParser.Parse(mEvent.time, mEvent.date);
-        if (parsedDates != null && parsedDates.size() == 2) {
-            Log.d(TAG, "parseDate: from = " + parsedDates.get(0).toString() + " to = " + parsedDates.get(1).toString());
+        mParsedDatedList = DateTimeParser.Parse(mEvent.time, mEvent.date);
+        if (mParsedDatedList != null && mParsedDatedList.size() == 2) {
+            Log.d(TAG, "parseDate: from = " + mParsedDatedList.get(0).toString() + " to = " + mParsedDatedList.get(1).toString());
         }
     }
 
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void animateRevealShow(View viewRoot) {
-        int cx = (viewRoot.getLeft() + viewRoot.getRight()) / 2;
-        int cy = (viewRoot.getTop() + viewRoot.getBottom()) / 2;
-        int finalRadius = Math.max(viewRoot.getWidth(), viewRoot.getHeight());
+    public void onClickAddToCalendar(View view) {
+        if (mParsedDatedList == null || mParsedDatedList.size() != 2)
+            return;
 
-        Animator anim = ViewAnimationUtils.createCircularReveal(viewRoot, cx, cy, 0, finalRadius);
-        viewRoot.setVisibility(View.VISIBLE);
-        anim.setDuration(1000);
-        anim.setInterpolator(new AccelerateInterpolator());
-        anim.start();
+        Calendar calStart = Calendar.getInstance();
+        Calendar calEnd = Calendar.getInstance();
+        calStart.setTime(mParsedDatedList.get(0));
+        calEnd.setTime(mParsedDatedList.get(1));
+
+        Intent intent = new Intent(Intent.ACTION_EDIT);
+        intent.setType("vnd.android.cursor.item/event");
+        intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, calStart.getTimeInMillis());
+        intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, calEnd.getTimeInMillis());
+        intent.putExtra(CalendarContract.Events.TITLE, mEvent.title);
+        intent.putExtra(CalendarContract.Events.DESCRIPTION, mEvent.full_description);
+        intent.putExtra(CalendarContract.Events.EVENT_LOCATION, "Ząbkowska 27/31, 03-736 Warszawa");
+        startActivity(intent);
+
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void setupWindowAnimations() {
-        Fade fade = new Fade();
-        fade.setDuration(1000);
-        getWindow().setEnterTransition(fade);
 
-        Slide slide = new Slide();
-        slide.setDuration(1000);
-        getWindow().setReturnTransition(slide);
-        /*Transition fade = TransitionInflater.from(DetailsActivity.this).inflateTransition(R.transition.transition_fade);
-        getWindow().setEnterTransition(fade);*/
-    }
 }

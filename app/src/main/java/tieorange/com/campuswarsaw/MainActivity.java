@@ -8,17 +8,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.transition.Fade;
-import android.transition.Slide;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
-import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
+import com.anupcowkur.reservoir.Reservoir;
+import com.anupcowkur.reservoir.ReservoirGetCallback;
+import com.anupcowkur.reservoir.ReservoirPutCallback;
+import com.google.gson.reflect.TypeToken;
 
-import java.util.Date;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import butterknife.Bind;
@@ -27,8 +26,6 @@ import jp.wasabeef.recyclerview.animators.LandingAnimator;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import tieorange.com.campuswarsaw.api.Event;
 import tieorange.com.campuswarsaw.api.Events;
 
@@ -45,20 +42,47 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 //        setupWindowAnimations();
         ButterKnife.bind(this);
+        setupRecyclerView();
 
+        getCache();
 
         setupRetrofit();
 
-        setupRecyclerView();
+        Log.d(TAG, "onCreate: listSize = " + CampusApplication.eventsList.size());
+    }
 
+    private void getCache() {
+        boolean isCacheExist = false;
+        try {
+            isCacheExist = Reservoir.contains(CampusApplication.CACHE_KEY);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
+        if (!isCacheExist) return;
 
+        Type resultType = new TypeToken<List<Event>>() {
+        }.getType();
+
+        Reservoir.getAsync(CampusApplication.CACHE_KEY, resultType, new ReservoirGetCallback<List<Event>>() {
+            @Override
+            public void onSuccess(List<Event> cachedEventsList) {
+                updateRecyclerView(cachedEventsList);
+                Log.d(TAG, "onSuccess: Reservoir.getAsync, size = " + cachedEventsList.size());
+
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.d(TAG, "onFailure: Reservoir.getAsync " + e.toString());
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: ");
+        Log.d(TAG, "onResume: listSize = " + CampusApplication.eventsList.size());
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -76,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         mAdapter = new EventsAdapter(CampusApplication.eventsList);
-        mUiRecyclerView.setHasFixedSize(true);
         mUiRecyclerView.setItemAnimator(new LandingAnimator());
 
         mUiRecyclerView.setAdapter(mAdapter);
@@ -103,26 +126,41 @@ public class MainActivity extends AppCompatActivity {
     private void setupRetrofit() {
         // setup Retrofit:
         if (CampusApplication.apiRetro == null) {
-            final String BASE_URL = "https://api.import.io/";
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-
-            CampusApplication.apiRetro = retrofit.create(ApiRetro.class);
+            Log.d(TAG, "setupRetrofit: CampusApplication.apiRetro is NULL");
+            CampusApplication.initRetrofit();
         }
         Call<Events> call = CampusApplication.apiRetro.getEvents();
         call.enqueue(new Callback<Events>() {
             @Override
             public void onResponse(Call<Events> call, Response<Events> response) {
                 if (response == null) return;
-
                 List<Event> results = response.body().results;
-                for (int i = 0; i < results.size(); i++) {
-                    Event result = results.get(i);
-                    CampusApplication.eventsList.add(result);
-                    mAdapter.notifyItemInserted(i);
+                updateRecyclerView(results);
+
+                if (results.size() < 0) return;
+
+
+                try {
+                    Reservoir.clear(); // clear cache
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "onResponse: Reservoir.clear() failed");
                 }
+
+                // cache:
+                Reservoir.putAsync(CampusApplication.CACHE_KEY, results, new ReservoirPutCallback() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "onSuccess: cache saved");
+                        mAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.d(TAG, "onFailure: cache saving FAILURE " + e.toString());
+                    }
+                });
+
             }
 
             @Override
@@ -131,5 +169,15 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, "Try to reconnect to Internet", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void updateRecyclerView(List<Event> results) {
+        CampusApplication.eventsList.clear();
+        for (int i = 0; i < results.size(); i++) {
+            Event result = results.get(i);
+            CampusApplication.eventsList.add(result);
+//            mAdapter.notifyItemInserted(i);
+        }
+        mAdapter.notifyDataSetChanged();
     }
 }

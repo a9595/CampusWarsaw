@@ -49,6 +49,13 @@
             android:textIsSelectable="true"
             android:textSize="16sp"
             android:typeface="serif" />
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/details_description"
+            android:onClick="onClickAddToCalendar"
+            android:text="Add to Calendar" />
     </RelativeLayout>
 
 
