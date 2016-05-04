@@ -22,7 +22,7 @@
             android:layout_marginTop="20dp"
             android:text="The Awwwesomes - HTML CSS Workshop for Beginners #3"
             android:textIsSelectable="true"
-            android:textSize="18sp"
+            android:textSize="25sp"
             android:textStyle="bold"
             android:typeface="serif" />
 
