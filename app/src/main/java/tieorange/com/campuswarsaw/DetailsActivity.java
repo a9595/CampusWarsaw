@@ -1,38 +1,17 @@
 package tieorange.com.campuswarsaw;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.TimeInterpolator;
-import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.CalendarContract;
-import android.support.annotation.ColorRes;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.animation.FastOutLinearInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.transition.Fade;
-import android.transition.Slide;
-import android.transition.Transition;
-import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewAnimationUtils;
-import android.view.ViewGroup;
-import android.view.animation.AccelerateInterpolator;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.ocpsoft.prettytime.nlp.PrettyTimeParser;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -81,10 +60,10 @@ public class DetailsActivity extends AppCompatActivity {
             });
         }
 
-        setTitle(mEvent.date);
+        setTitle(mEvent.time);
         mUiDescription.setText(mEvent.full_description);
         mUiTitle.setText(mEvent.title);
-        mUiTime.setText(mEvent.time);
+        mUiTime.setText(mEvent.date);
 
         parseDate();
 

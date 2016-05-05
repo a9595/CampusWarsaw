@@ -110,14 +110,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 Intent i = new Intent(MainActivity.this, DetailsActivity.class);
-
-                View viewTitle = v.findViewById(R.id.row_title);
-                String transitionTitle = getString(R.string.transition_title);
-                ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this, viewTitle, transitionTitle);
-
-
                 i.putExtra(Intent.EXTRA_UID, position);
-//                startActivity(i, transitionActivityOptions.toBundle());
                 startActivity(i);
             }
         });

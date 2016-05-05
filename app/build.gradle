@@ -38,7 +38,5 @@ dependencies {
     //    compile 'org.ocpsoft.prettytime:prettytime-parent:4.0.1.Final'
     //    compile 'org.ocpsoft.prettytime:prettytime-nlp:4.0.1.Final'
     //    compile files('libs/prettytime-4.0.1.Final.jar')
-    compile files('libs/prettytime-nlp-4.0.1.Final.jar')
-
     compile 'com.anupcowkur:reservoir:2.1'
 }
