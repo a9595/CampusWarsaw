@@ -20,6 +20,9 @@ nimbledroid {
 allprojects {
     repositories {
         jcenter()
+        maven {
+            url "http://dl.bintray.com/glomadrian/maven"
+        }
     }
 }
 

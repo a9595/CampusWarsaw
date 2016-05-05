@@ -1,11 +1,10 @@
 package tieorange.com.campuswarsaw;
 
 import android.annotation.TargetApi;
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Build;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -15,6 +14,7 @@ import android.widget.Toast;
 import com.anupcowkur.reservoir.Reservoir;
 import com.anupcowkur.reservoir.ReservoirGetCallback;
 import com.anupcowkur.reservoir.ReservoirPutCallback;
+import com.github.glomadrian.loadingballs.BallView;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
@@ -22,7 +22,6 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import jp.wasabeef.recyclerview.animators.LandingAnimator;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -34,6 +33,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Bind(R.id.main_recycler_view)
     RecyclerView mUiRecyclerView;
+    @Bind(R.id.main_loading_animation)
+    BallView mUiLoadingAnimation;
+
     private EventsAdapter mAdapter;
 
     @Override
@@ -67,7 +69,11 @@ public class MainActivity extends AppCompatActivity {
         Reservoir.getAsync(CampusApplication.CACHE_KEY, resultType, new ReservoirGetCallback<List<Event>>() {
             @Override
             public void onSuccess(List<Event> cachedEventsList) {
-                updateRecyclerView(cachedEventsList);
+                if (cachedEventsList.size() >= 1) {
+                    mUiLoadingAnimation.setVisibility(View.GONE);
+                    mUiRecyclerView.setVisibility(View.VISIBLE);
+                    updateRecyclerView(cachedEventsList);
+                }
                 Log.d(TAG, "onSuccess: Reservoir.getAsync, size = " + cachedEventsList.size());
 
             }
@@ -100,7 +106,6 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         mAdapter = new EventsAdapter(CampusApplication.eventsList);
-        mUiRecyclerView.setItemAnimator(new LandingAnimator());
 
         mUiRecyclerView.setAdapter(mAdapter);
         mUiRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
@@ -132,6 +137,8 @@ public class MainActivity extends AppCompatActivity {
 
                 if (results.size() < 0) return;
 
+                mUiLoadingAnimation.setVisibility(View.GONE);
+                mUiRecyclerView.setVisibility(View.VISIBLE);
 
                 try {
                     Reservoir.clear(); // clear cache
