@@ -6,6 +6,11 @@ import android.util.Log;
 
 import com.anupcowkur.reservoir.Reservoir;
 
+import com.crashlytics.android.Crashlytics;
+import com.crashlytics.android.core.CrashlyticsCore;
+
+import io.fabric.sdk.android.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
@@ -28,6 +33,11 @@ public class CampusApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        if (BuildConfig.USE_CRASHLYTICS == true) {
+            CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
+            Fabric.with(this, new Crashlytics.Builder().core(core).build(), new Crashlytics());
+            Log.d(TAG, "onCreate: Crashlytics set up");
+        }
         initCache();
         initRetrofit();
     }

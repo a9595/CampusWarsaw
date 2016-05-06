@@ -25,6 +25,9 @@
             android:name=".DetailsActivity"
             android:label="@string/title_activity_scrolling"
             android:theme="@style/AppTheme.NoActionBar" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="e487cfa05b75bf3c7a147eb329ff49a211ccff16" />
     </application>
 
 </manifest>

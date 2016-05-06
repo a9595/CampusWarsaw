@@ -35,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView mUiRecyclerView;
     @Bind(R.id.main_loading_animation)
     BallView mUiLoadingAnimation;
-
     private EventsAdapter mAdapter;
 
     @Override
@@ -47,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         setupRecyclerView();
 
         getCache();
-
         setupRetrofit();
 
         Log.d(TAG, "onCreate: listSize = " + CampusApplication.eventsList.size());
@@ -88,20 +86,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+//        getCache();
+//        if (CampusApplication.eventsList == null || CampusApplication.eventsList.size() <= 2) {
+//            setupRetrofit();
+//        }
         Log.d(TAG, "onResume: listSize = " + CampusApplication.eventsList.size());
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void setupWindowAnimations() {
-        /*Fade fade = new Fade();
-        fade.setDuration(1000);
-        getWindow().setExitTransition(fade);
-
-        Slide slide = new Slide();
-        slide.setDuration(1000);
-        getWindow().setReturnTransition(slide);*/
-        /*Transition slide = TransitionInflater.from(MainActivity.this).inflateTransition(R.transition.transition_slide);
-        getWindow().setExitTransition(slide);*/
     }
 
     private void setupRecyclerView() {
@@ -111,7 +100,6 @@ public class MainActivity extends AppCompatActivity {
         mUiRecyclerView.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
         ItemClickSupport.addTo(mUiRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
-            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
                 Intent i = new Intent(MainActivity.this, DetailsActivity.class);
@@ -133,9 +121,11 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<Events> call, Response<Events> response) {
                 if (response == null) return;
                 List<Event> results = response.body().results;
+                if (results.size() < 2) {
+                    setupRetrofit();
+                    return;
+                }
                 updateRecyclerView(results);
-
-                if (results.size() < 0) return;
 
                 mUiLoadingAnimation.setVisibility(View.GONE);
                 mUiRecyclerView.setVisibility(View.VISIBLE);
@@ -172,6 +162,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateRecyclerView(List<Event> results) {
+        if (results.size() <= 2) return;
+
         CampusApplication.eventsList.clear();
         for (int i = 0; i < results.size(); i++) {
             Event result = results.get(i);

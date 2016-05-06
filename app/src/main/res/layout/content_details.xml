@@ -12,8 +12,8 @@
         android:id="@+id/details_relative_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingBottom="40dp"
-        android:layout_margin="@dimen/text_margin">
+        android:layout_margin="@dimen/text_margin"
+        android:paddingBottom="40dp">
 
         <TextView
             android:id="@+id/details_title"
@@ -57,6 +57,15 @@
             android:layout_below="@id/details_description"
             android:onClick="onClickAddToCalendar"
             android:text="Add to Calendar" />
+
+        <!--    <Button
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:text="Force Crash!"
+                android:onClick="forceCrash"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />-->
+
     </RelativeLayout>
 
 
