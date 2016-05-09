@@ -14,6 +14,9 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.CustomEvent;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -59,11 +62,19 @@ public class DetailsActivity extends AppCompatActivity {
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    doKeyMetric();
                     createCalendarEvent();
                 }
             });
         }
     }
+
+    public void doKeyMetric() {
+        Answers.getInstance().logCustom(new CustomEvent("Event added to calendar")
+                .putCustomAttribute("Event title", mEvent.title)
+                .putCustomAttribute("DateTime", mEvent.date + " " + mEvent.time));
+    }
+
 
     private void openEventLink() {
         String url = mEvent.link;
@@ -91,9 +102,6 @@ public class DetailsActivity extends AppCompatActivity {
         return parsedDatesList;
     }
 
-    public void onClickAddToCalendar(View view) {
-
-    }
 
     private void createCalendarEvent() {
         List<Date> parsedDatesList = getParsedDates();

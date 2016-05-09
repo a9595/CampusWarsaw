@@ -9,6 +9,9 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
+import com.crashlytics.android.answers.Answers;
+import com.crashlytics.android.answers.ContentViewEvent;
+import com.crashlytics.android.answers.CustomEvent;
 import com.github.glomadrian.loadingballs.BallView;
 
 import java.io.IOException;
@@ -126,11 +129,20 @@ public class MainActivity extends AppCompatActivity {
         ItemClickSupport.addTo(mUiRecyclerView).setOnItemClickListener(new ItemClickSupport.OnItemClickListener() {
             @Override
             public void onItemClicked(RecyclerView recyclerView, int position, View v) {
+                metricEventSelection(position);
+
                 Intent i = new Intent(MainActivity.this, DetailsActivity.class);
                 i.putExtra(Intent.EXTRA_UID, position);
                 startActivity(i);
             }
         });
+    }
+
+    private void metricEventSelection(int position) {
+        final Event selectedEvent = CampusApplication.eventsList.get(position);
+        Answers.getInstance().logCustom(new CustomEvent("Event selected from the list")
+                .putCustomAttribute("Event title", selectedEvent.title)
+                .putCustomAttribute("DateTime", selectedEvent.date + " " + selectedEvent.time));
     }
 
     private void afterDataDownloaded(List<Event> results) {
