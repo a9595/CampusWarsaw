@@ -1,8 +1,6 @@
 package tieorange.com.campuswarsaw;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -41,17 +39,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        setupWindowAnimations();
         ButterKnife.bind(this);
         setupRecyclerView();
 
-        getCache();
+        putCachedDataToRecyclerView();
         setupRetrofit();
 
         Log.d(TAG, "onCreate: listSize = " + CampusApplication.eventsList.size());
     }
 
-    private void getCache() {
+    private void putCachedDataToRecyclerView() {
         boolean isCacheExist = false;
         try {
             isCacheExist = Reservoir.contains(CampusApplication.CACHE_KEY);
@@ -68,9 +65,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onSuccess(List<Event> cachedEventsList) {
                 if (cachedEventsList.size() >= 1) {
-                    mUiLoadingAnimation.setVisibility(View.GONE);
-                    mUiRecyclerView.setVisibility(View.VISIBLE);
                     updateRecyclerView(cachedEventsList);
+                    hideLoadingAndShowRecyclerView();
                 }
                 Log.d(TAG, "onSuccess: Reservoir.getAsync, size = " + cachedEventsList.size());
 
@@ -86,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-//        getCache();
+//        putCachedDataToRecyclerView();
 //        if (CampusApplication.eventsList == null || CampusApplication.eventsList.size() <= 2) {
 //            setupRetrofit();
 //        }
@@ -115,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "setupRetrofit: CampusApplication.apiRetro is NULL");
             CampusApplication.initRetrofit();
         }
+
         Call<Events> call = CampusApplication.apiRetro.getEvents();
         call.enqueue(new Callback<Events>() {
             @Override
@@ -126,31 +123,9 @@ public class MainActivity extends AppCompatActivity {
                     return;
                 }
                 updateRecyclerView(results);
-
-                mUiLoadingAnimation.setVisibility(View.GONE);
-                mUiRecyclerView.setVisibility(View.VISIBLE);
-
-                try {
-                    Reservoir.clear(); // clear cache
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.d(TAG, "onResponse: Reservoir.clear() failed");
-                }
-
-                // cache:
-                Reservoir.putAsync(CampusApplication.CACHE_KEY, results, new ReservoirPutCallback() {
-                    @Override
-                    public void onSuccess() {
-                        Log.d(TAG, "onSuccess: cache saved");
-                        mAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onFailure(Exception e) {
-                        Log.d(TAG, "onFailure: cache saving FAILURE " + e.toString());
-                    }
-                });
-
+                hideLoadingAndShowRecyclerView();
+                clearCache();
+                saveDataToCache(results);
             }
 
             @Override
@@ -161,11 +136,41 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private void hideLoadingAndShowRecyclerView() {
+        mUiLoadingAnimation.setVisibility(View.GONE);
+        mUiRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void saveDataToCache(List<Event> results) {
+        // cache:
+        Reservoir.putAsync(CampusApplication.CACHE_KEY, results, new ReservoirPutCallback() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "onSuccess: cache saved");
+                mAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Exception e) {
+                Log.d(TAG, "onFailure: cache saving FAILURE " + e.toString());
+            }
+        });
+    }
+
+    private void clearCache() {
+        try {
+            Reservoir.clear();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d(TAG, "onResponse: Reservoir.clear() failed");
+        }
+    }
+
     private void updateRecyclerView(List<Event> results) {
         if (results.size() <= 2) return;
-
         CampusApplication.eventsList.clear();
-        for (int i = 0; i < results.size(); i++) {
+
+        for (int i = 0, resultsSize = results.size(); i < resultsSize; i++) {
             Event result = results.get(i);
             CampusApplication.eventsList.add(result);
 //            mAdapter.notifyItemInserted(i);

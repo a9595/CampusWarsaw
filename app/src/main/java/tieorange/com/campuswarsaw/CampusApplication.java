@@ -13,7 +13,6 @@ import io.fabric.sdk.android.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -33,13 +32,21 @@ public class CampusApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        if (BuildConfig.USE_CRASHLYTICS == true) {
-            CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
-            Fabric.with(this, new Crashlytics.Builder().core(core).build(), new Crashlytics());
-            Log.d(TAG, "onCreate: Crashlytics set up");
-        }
+        setupCrashlytics();
         initCache();
         initRetrofit();
+    }
+
+    private void setupCrashlytics() {
+        if (BuildConfig.USE_CRASHLYTICS == true) {
+            CrashlyticsCore core = new CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build();
+            Crashlytics builder = new Crashlytics.Builder()
+                    .core(core)
+                    .build();
+
+            Fabric.with(this, builder, new Crashlytics());
+            Log.d(TAG, "onCreate: Crashlytics set up");
+        }
     }
 
     private void initCache() {
