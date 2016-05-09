@@ -22,6 +22,9 @@ public class DateTimeParser {
     public static List<Date> Parse(String time, String date) {
 //        String eventDateTime = "Wednesday, 4 May 6:00 – 8:00 PM";
         List<Date> parsedDates = new ArrayList<>();
+        final String time_AM = "AM";
+        final String time_PM = "PM";
+
 
         int indexOfSeparator = time.indexOf("–");
         String startTime = time.substring(0, indexOfSeparator);
@@ -36,11 +39,13 @@ public class DateTimeParser {
         int startHour = Integer.parseInt(time.substring(0, indexOfTwoDots));
         int endHour = Integer.parseInt(time.substring(indexOfSeparator + 1, indexOfTwoDotsLast));
         if (startHour >= endHour)
-            pmAMstart = "AM";
+            pmAMstart = time_AM;
+        else {
+            if (endHour == 12 && pmAMend.equals(time_PM))
+                pmAMstart = time_AM;
+        }
         //
 
-
-        String eventTimeEdited = MessageFormat.format(date + " {0} {1} - {2} {3}", startTime, pmAMstart, endTime, pmAMend);
         String startDate = MessageFormat.format(date + " {0} {1}", startTime, pmAMstart);
         String endDate = MessageFormat.format(date + " {0} {1}", endTime, pmAMend);
 
@@ -61,8 +66,6 @@ public class DateTimeParser {
             e.printStackTrace();
         }
 
-
-//        List<Date> dates = new PrettyTimeParser().parse(eventTimeEdited);
         return parsedDates;
     }
 

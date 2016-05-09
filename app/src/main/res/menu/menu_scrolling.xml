@@ -3,8 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".DetailsActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_open_event_link"
+        android:icon="@drawable/ic_link"
         android:orderInCategory="100"
         android:title="@string/action_settings"
-        app:showAsAction="never" />
+        app:showAsAction="ifRoom" />
 </menu>

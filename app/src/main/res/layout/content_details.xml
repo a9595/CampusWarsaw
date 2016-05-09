@@ -56,7 +56,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/details_description"
             android:onClick="onClickAddToCalendar"
-            android:text="Add to Calendar" />
+            android:text="Add to Calendar"
+            android:visibility="gone" />
 
         <!--    <Button
                 android:layout_height="wrap_content"
